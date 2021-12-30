@@ -1,0 +1,83 @@
+Tasks:
+
+1.Create a Trigger on  a case when it  is created with origin as email then set status as new and Priority as Medium.
+2.create Trigger to prevent creation of the account with the same name that already exists.i.e Preventing the users to create Duplicate Accounts.
+3.create a trigger  When New Account Record is created then it has to create associated Contact Record automatically.
+4.create a trigger to  prefix all lead names with 'mr' whenever lead created. This is applicable for both inserting and updating the lead records.
+
+------------------------------------------------------------------------------------------------------------------------------
+
+**ACCOUNT OBJECT TRIGGER**
+-----------------------------------------------------------
+trigger AccountTrigger on Account (before insert, After Insert) {
+    IF(trigger.isinsert){
+        IF(trigger.isbefore){
+            IF(TriggerClass.PreventingDuplicateAccName(trigger.new) == true){
+        Trigger.new[0].addError('Account Already Exist');
+    }
+        }
+        else if(trigger.isafter){
+            TriggerClass.CreateContactRecord(trigger.new);
+        }
+    }  
+}
+===================================================================================================
+
+**CASE OBJECT TRIGGER**
+------------------------------------------
+trigger CaseTrigger on Case (before insert) {
+    If(trigger.Isinsert){
+        If(trigger.Isbefore){
+            TriggerClass.UpdateCaseFields(trigger.new);
+        }
+    }
+}
+===================================================================================================
+
+** LEAD OBJECT TRIGGER**
+---------------------------------------------------------
+trigger LeadTrigger on Lead (before insert, before update) {
+    TriggerClass.LeadPrefixAdder(trigger.new);
+}
+
+===================================================================================================
+===================================================================================================
+
+
+
+**HELPER CLASS FOR ALL THE OBJECTS**
+===================================================================================================
+public class TriggerClass {
+   
+    public static void UpdateCaseFields(list<case> caseSobj){
+        For(case c: caseSobj){
+            If(c.Origin == 'Email'){
+                c.Status = 'New';
+                c.Priority = 'Medium';
+            }
+        }
+    }
+   
+    Public static Boolean b;
+    public static Boolean PreventingDuplicateAccName(list<account> accSobj){
+        list<account> dupfindlist = [select ID, Name from Account Where Name = :accSobj[0].Name];
+        If(!dupfindlist.isempty()){
+            b = true;
+        }
+        else{
+            b = false;
+        }
+        return b;
+    }
+   
+    Public static void CreateContactRecord(list<account> accObjrec ){
+        contact c = new contact(lastname = accObjrec[0].name, AccountId = accObjrec[0].ID );
+        insert c;
+    }
+   
+    public static void LeadPrefixAdder(list<lead> leadSobj){
+        leadSobj[0].salutation = 'Mr.';
+    }
+}
+
+===================================================================================================
