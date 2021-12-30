@@ -1,0 +1,58 @@
+Tasks:
+
+1.Write an apex program, to insert 250 Lead Records inside the object
+
+2.Write an apex program, to remove the Duplicate Elements from collection.
+
+3.Write an apex program, to fetch all the Account Records from the object and will represent on the debug log file.
+
+4.Write an apex program, to fetch all the Hiring Manager Records from the object and represent on the Debug Log File, by storing the records in the Map Collection.
+(Name,Location,Contact number,EmailId-Fields)
+
+--------------------------------------------------------------------------
+
+Public class APEX_TASK {
+   
+//Apex program, to insert 250 Lead Records inside the object.
+    Public static void LeadImportMethod(){
+        List<sObject> Leadrecords = new List<sObject>();
+        Lead a = new Lead( LastName = 'Pradeep', Company = 'RIS');
+        Lead b = new Lead( LastName = 'Kumar', Company = 'RIS');
+        Leadrecords.add(a);
+        Leadrecords.add(b);
+        Insert Leadrecords;
+       
+    }
+   
+    //Apex program, to remove the Duplicate Elements from collection.
+    Public static void DuplicateElementChecker(List<integer> a){
+        Set<integer> UniqueValues = new Set<integer>();
+        For(Integer i : a){
+            UniqueValues.add(i);
+        }
+      System.debug(UniqueValues);
+       
+    }
+   
+    // Apex program, to fetch all the Account Records from the object.
+    Public static void AccountObjRecordsQuery(){
+        List<Account> AccList = [Select Name, Active__c From Account];
+        For(Account a : AccList){
+           System.debug(a);
+        }
+        //system.debug(AccList);
+    }
+   
+    //Apex program to fetch all the Hiring Manager Records from the object.
+    Public static void GetHiringManagersRecord(){
+        List<Contact> HMContact = [SELECT ID, Name, Phone, Email, MailingAddress FROM Contact Where Title ='Hiring Manager'];
+        Map<Id,Contact> conmap = new Map<Id,Contact>();
+        For( contact a: HMContact){
+            conmap.put(a.Id, a);
+        }
+        system.debug(conmap.get('0035j00000AiCJeAAN'));
+       
+       
+    }
+
+}
