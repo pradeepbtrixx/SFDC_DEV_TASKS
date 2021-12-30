@@ -1,0 +1,119 @@
+TASKS:
+
+1)When a new contact is created for existing account then set contact other phone as account phone.
+2)opportunity stagename is modified to closed won then set closedate as today and type as customer.
+3)The trigger will prevent the users from deleting the Accounts. This is because System Administrator has all the permissions, we cannot change the permissions.
+4)When an opportunity is inserted or updated then if the stage name is ‘Closed won’ then add the task.
+
+======================================================================================================================
+
+1 : 
+
+trigger ContactTrigger on Contact (before insert) {
+    ContactTriggerHelper.contactPhoneUpdate(trigger.new);
+}
+
+----
+
+public class ContactTriggerHelper {
+   
+	public static void contactPhoneUpdate(list<contact> conlist){
+        list<Account> AccList = [select ID, Name, phone from Account];
+        map<ID,account> accountmap = new map<ID,account>();
+        
+        For(account acc : AccList ){
+            accountmap.put(acc.id, acc);
+        }
+        
+        For(contact con : conlist){
+            If(con.accountID != null){
+                con.Phone = accountmap.get(con.AccountId).phone;
+            }
+            
+        } 
+        
+    }
+    
+    
+}
+
+======================================================================================================================
+
+2 and 4 :
+
+trigger OpportunityTrgger on Opportunity (before update, after insert, after update) {
+    
+    IF(trigger.isupdate && trigger.isbefore){
+        OpportunityTriggerHelper.OppFieldsUpdate(trigger.new);
+    }
+    else if( (trigger.isupdate || trigger.isinsert ) && trigger.isafter){
+		OpportunityTriggerHelper.Taskcreation(trigger.new);
+    }
+
+}
+
+----------------------------------------------
+
+public class OpportunityTriggerHelper {
+    public static void OppFieldsUpdate(list<Opportunity> opplist){
+        For(opportunity opp : opplist){
+            IF(opp.StageName == 'Closed Won'){
+                opp.CloseDate  = system.today();
+                opp.Type = 'New Customer';
+            }
+        }
+    }
+	
+    public static void Taskcreation(list<Opportunity> opplists){
+        list<Task> TaskNeedToBeCreated = new list<Task>();
+        
+        For(Opportunity opp : opplists){
+            Task t = new Task();
+            If(opp.StageName == 'Closed Won'){
+                t.Subject = 'Call';
+                t.Priority = 'High';
+                t.WhatId = opp.AccountId;
+            }
+            TaskNeedToBeCreated.add(t);
+        }
+        insert TaskNeedToBeCreated;
+    }
+}
+
+======================================================================================================================
+
+3 : 
+
+trigger PreventUserFromDelAcc on Account (before delete) {
+	PreventUserFromDelAccHelper.PreventUserFromDelAccmeth(trigger.old);
+}
+
+----------------------------------------------------
+
+public class PreventUserFromDelAccHelper {
+
+    public static void PreventUserFromDelAccmeth(list<account> acclist){
+        list<user> userProfileIDS = [select ProfileId from user]; 
+        set<ID> setofuserProfileIDS = new set<ID>();
+        
+        For(user u: userProfileIDS){
+            setofuserProfileIDS.add(u.ProfileId);
+        }       
+        For(account acc :acclist){
+            IF(setofuserProfileIDS.contains(UserInfo.getProfileId())){
+                acc.AddError('Your not authorized user to delete account reecords');
+            }  
+		}
+    }
+
+}
+
+======================================================================================================================
+
+
+
+
+
+
+
+
