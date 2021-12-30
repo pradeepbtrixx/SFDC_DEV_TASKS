@@ -1,0 +1,92 @@
+ EMAIL TEMPLATE task  for VIJAYARAJA PROJECT :  12/ 29/ 2021 
+
+---------------------------------------------------------
+*** TRIGGEER ****
+
+trigger LeadTrgger on Lead (before insert, after insert, after update) {
+    If(trigger.isafter){
+        If(trigger.isinsert){
+        EmailAlertTriggerHelperClass.EmailAlertMethod(trigger.new);
+        }
+        else if(trigger.isupdate){
+            EmailAlertTriggerHelperClass.DupLeadDeletion(trigger.new);
+        }
+       
+    }
+    else if(trigger.isinsert && trigger.isbefore){
+        EmailAlertTriggerHelperClass.DupLeadcheck(trigger.new);
+    }
+}
+
+=====================================================================================
+
+***** TRIGGER HELPER CLASS ******
+
+public class EmailAlertTriggerHelperClass {
+    
+    public static void EmailAlertMethod(list<lead> leadlist) {
+        list<Messaging.SingleEmailMessage> mailList = new list<Messaging.SingleEmailMessage>();
+        EmailTemplate emailTemp = [SELECT ID,Subject,Body FROM EmailTemplate WHERE DeveloperName = 'LEADSUCCESSALERT'];
+
+
+        For(lead l : leadlist){
+            If(l.DupLead__c == false){
+                Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+                mail.setTemplateId(emailTemp.Id);
+                mail.setTargetObjectId(l.Id);
+                mailList.add(mail);
+            }
+            
+        }
+        system.debug(maillist.size());
+       
+           
+        If(!mailList.isempty()){
+            messaging.sendEmail(mailList);
+        }
+       
+    }
+   
+    public static void DupLeadcheck(list<lead> leadl){
+       
+        list<Lead> leadsfromDB = [select ID, Lastname, Phone, Email from Lead];
+       
+        set<string> uniqueleadsphone = new set<string>();
+        set<string> uniqueleadsemail = new set<string>();
+       
+        For(Lead l: leadsfromDB){
+            If(String.IsNotBlank(l.Phone) && string.isNotBlank(l.Email)){
+            uniqueleadsphone.add(l.Phone);
+            uniqueleadsemail.add(l.Email);
+            }
+           
+        }
+        For(lead LL: leadl){
+            If(uniqueleadsphone.contains(LL.phone) ||uniqueleadsemail.contains(LL.Email)){
+                LL.DupLead__c = True;
+            }
+        }        
+    }
+   
+    public static void DupLeadDeletion(list<lead> llll){
+        list<lead> DupLeadChecked = [select ID, DupLead__c  from Lead where DupLead__c  = True];
+        list<Messaging.SingleEmailMessage> mailList = new list<Messaging.SingleEmailMessage>();
+        EmailTemplate emailTemp = [SELECT ID,Subject,Body FROM EmailTemplate WHERE DeveloperName = 'LEADALREADYEXISTS'];
+
+        For(lead l : DupLeadChecked){
+            Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();
+            mail.setTemplateId(emailTemp.Id);
+            mail.setTargetObjectId(l.Id);
+            mailList.add(mail);
+        }
+        system.debug(maillist.size());
+       
+           
+        If(!mailList.isempty()){
+            messaging.sendEmail(mailList);
+        }
+        delete DupLeadChecked;
+    }
+
+}
+
