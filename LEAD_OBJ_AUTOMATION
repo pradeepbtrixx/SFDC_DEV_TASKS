@@ -1,0 +1,70 @@
+****** LEAD OBJECT AUTOMATION *******
+======================================================================================================================================
+trigger LeadTrigger on Lead (before insert,before update) {
+    If(trigger.isupdate || trigger.isinsert){
+		    LeadTriggerHelper.LeadAddressRequied(trigger.new);
+    	  LeadTriggerHelper.LeadIndustryARupdation(trigger.new);
+        LeadTriggerHelper.LeadPrefixUpdate(trigger.new);
+    	  If(trigger.isinsert){
+        	  LeadTriggerHelper.LeadRatingUpdate(trigger.new);
+    	}
+    }
+}
+
+-------------------------------------------------------------------
+
+public class LeadTriggerHelper {
+    
+    //2,1.Create a Trigger on the Lead object, to MakeSure the Lead Address should be Mandatory.
+    public static void LeadAddressRequied(list<Lead> LeadList){
+        For(Lead l: LeadList){
+            If(l.city == Null || l.Country == null || l.State == null || l.Street == null || l.PostalCode == null){
+                l.addError('Addrees Is required field for Lead');
+            }
+        }
+    }
+    /*
+    2,2.Create a Trigger on Lead Object, to Auto Populate the Annual Revenue based on the Industry Name as below.
+
+      Industry Name AnnualRevenue
+      ----------------------------------------
+      Banking 90,00,000
+      Finance 76,00,000
+      Insurance 45,00,000
+      Manufacturing 84,00,000
+      Education 74,00,000
+      Consulting 32,00,000
+      Energy 94,00,000 
+    */
+    
+    public static void LeadIndustryARupdation(list<lead> leadlist){
+        Map<String, Integer> updateionVal = new map<String,Integer>{'Banking' => 9000000, 'Finance'=>7600000,
+            'Insurance'=>4500000, 'Manufacturing'=> 8400000,'Education'=>7400000, 'Consulting'=> 3200000,'Energy'=>9400000};
+                
+        For(Lead l: LeadList){
+            If(updateionVal.containskey(l.Industry)){
+                l.AnnualRevenue = updateionVal.get(l.Industry);
+            }
+        }
+    }
+    
+    //3,2.Create a trigger When  Lead is created with LeadSource as Web then give rating as cold otherwise hot.
+	  public static void LeadRatingUpdate(list<lead> LeadList){
+        For(Lead l : LeadList){
+            IF(l.LeadSource == 'Web'){
+                l.Rating = 'Cold';
+            }
+            else{
+                l.Rating = 'Hot';
+            }
+        }
+    }
+
+    //5,1. create a trigger to  prefix all lead names with 'mr' whenever lead created. This is applicable for both inserting and updating the       lead records.
+  	Public static void LeadPrefixUpdate(list<lead> leadlist){
+        For(Lead l : leadList){
+            l.Salutation = 'Mr.';
+        }
+    }
+    
+}
