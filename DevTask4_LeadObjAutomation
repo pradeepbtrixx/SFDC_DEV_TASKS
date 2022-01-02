@@ -2,11 +2,11 @@
 ======================================================================================================================================
 trigger LeadTrigger on Lead (before insert,before update) {
     If(trigger.isupdate || trigger.isinsert){
-		    LeadTriggerHelper.LeadAddressRequied(trigger.new);
-    	  LeadTriggerHelper.LeadIndustryARupdation(trigger.new);
+	LeadTriggerHelper.LeadAddressRequied(trigger.new);
+    	LeadTriggerHelper.LeadIndustryARupdation(trigger.new);
         LeadTriggerHelper.LeadPrefixUpdate(trigger.new);
-    	  If(trigger.isinsert){
-        	  LeadTriggerHelper.LeadRatingUpdate(trigger.new);
+    	If(trigger.isinsert){
+        	LeadTriggerHelper.LeadRatingUpdate(trigger.new);
     	}
     }
 }
@@ -49,7 +49,7 @@ public class LeadTriggerHelper {
     }
     
     //3,2.Create a trigger When  Lead is created with LeadSource as Web then give rating as cold otherwise hot.
-	  public static void LeadRatingUpdate(list<lead> LeadList){
+    public static void LeadRatingUpdate(list<lead> LeadList){
         For(Lead l : LeadList){
             IF(l.LeadSource == 'Web'){
                 l.Rating = 'Cold';
@@ -61,7 +61,7 @@ public class LeadTriggerHelper {
     }
 
     //5,1. create a trigger to  prefix all lead names with 'mr' whenever lead created. This is applicable for both inserting and updating the       lead records.
-  	Public static void LeadPrefixUpdate(list<lead> leadlist){
+    Public static void LeadPrefixUpdate(list<lead> leadlist){
         For(Lead l : leadList){
             l.Salutation = 'Mr.';
         }
