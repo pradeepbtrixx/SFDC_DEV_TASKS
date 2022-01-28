@@ -1,0 +1,112 @@
+public class Vijayraja_WhatsappCallout_FetchSitevisit {
+   public static boolean svfirstRun= true;
+
+    public static void getSitevisitCallout(set<id> siteid,Map<id,Site_Visit__c> oldmapSV)/*(string siteid)*/{
+        list<site_visit__c> stlist = [Select id,Name,Status__c,Site_Visit_Date_Time__c,Completed__c,lead__r.LastName,lead__r.Phone,lead__r.also_interested_in_projects__c from Site_Visit__c where id=: siteid];
+         set<Site_Visit__c> Sitevisitset= new set<Site_Visit__c>();
+        set<Site_Visit__c> CompletedSVset= new set<Site_Visit__c>();
+         set<Site_Visit__c> SitevisitsetEx= new set<Site_Visit__c>();
+        set<Site_Visit__c> CompletedSVsetEx= new set<Site_Visit__c>();
+        for(Site_Visit__c st:stlist){
+           
+          if(!oldmapSV.isEmpty()){     
+     if(st.lead__r.also_interested_in_projects__c == 'VRX 360'&& oldmapSV.get(st.id).Site_Visit_Date_Time__c!= st.Site_Visit_Date_Time__c){ 
+               Sitevisitset.add(st);
+            }
+            else if(st.Completed__c && st.lead__r.also_interested_in_projects__c == 'VRX 360' && st.Completed__c !=oldmapSV.get(st.id).Completed__c){
+                CompletedSVset.add(st);
+            }
+             if(st.lead__r.also_interested_in_projects__c == 'Exurb'&& oldmapSV.get(st.id).Site_Visit_Date_Time__c!= st.Site_Visit_Date_Time__c){ 
+               SitevisitsetEx.add(st);
+            }
+            else if(st.Completed__c && st.lead__r.also_interested_in_projects__c == 'Exurb' && st.Completed__c !=oldmapSV.get(st.id).Completed__c){
+                CompletedSVsetEx.add(st);
+            }
+          }
+        }
+     //if(ls.also_interested_in_projects__c == 'VRX 360'){    
+         if(Sitevisitset.size()>0){     
+   for(Site_Visit__c ls:Sitevisitset){
+       if(ls.lead__r.also_interested_in_projects__c == 'VRX 360'){
+    	Lead__c abc= Lead__c.getInstance('SiteVisit_VRX360');
+          Set<string>Phone = new Set<String>();
+           Phone.add(ls.lead__r.Phone);
+         String templateid =abc.templateid__c+'~'+ls.lead__r.LastName+'~'+ls.lead__r.also_interested_in_projects__c+'~'+ls.Site_Visit_Date_Time__c; 
+            Vijayaraja_WhatsappCallout_Welcome.sendTemplate(Phone,templateid); 
+        
+   }     
+   }   
+        }
+            if(CompletedSVset.size()>0){
+                for(Site_Visit__c  sv:CompletedSVset){
+                    Lead__c abc=Lead__c.getInstance('SiteVisit_VRX360_Reached');
+                    string templateInfo=abc.templateid__c+'~'+sv.lead__r.LastName+'~'+sv.lead__r.also_interested_in_projects__c;
+                    Set<String> phone=new set<String>();
+                    phone.add(sv.lead__r.Phone);
+                    Vijayaraja_WhatsappCallout_Welcome.sendTemplate(phone,templateInfo);
+                }
+            }
+               
+        
+         if(SitevisitsetEx.size()>0){     
+   for(Site_Visit__c ls:SitevisitsetEx){
+       
+     if(ls.lead__r.also_interested_in_projects__c == 'Exurb'){
+    
+           Lead__c abc= Lead__c.getInstance('SiteVisit_Exurb');
+            
+          Set<string>Phone = new Set<String>();
+           Phone.add(ls.lead__r.Phone);
+         
+            String templateid =abc.templateid__c+'~'+ls.lead__r.LastName+'~'+ls.lead__r.also_interested_in_projects__c+'~'+ls.Site_Visit_Date_Time__c; 
+          
+           Vijayaraja_WhatsappCallout_Welcome.sendTemplate(Phone,templateid); 
+        
+   }     
+   }   
+        }
+            if(CompletedSVsetEx.size()>0){
+                for(Site_Visit__c  sv:CompletedSVsetEx){
+                    Lead__c abc=Lead__c.getInstance('SiteVisit_Exurb_Reached');
+                    string templateInfo=abc.templateid__c+'~'+sv.lead__r.LastName+'~'+sv.lead__r.also_interested_in_projects__c;
+                    Set<String> phone=new set<String>();
+                    phone.add(sv.lead__r.Phone);
+                    Vijayaraja_WhatsappCallout_Welcome.sendTemplate(phone,templateInfo);
+                    
+                }
+            }
+             
+       /*  String SiteVisitNumber=string.valueOf(st.Name);
+         system.debug('SiteVisitNumber'+ SiteVisitNumber);
+        
+      String SiteVisitDatetime=string.valueOf(st.Site_Visit_Date_Time__c);
+         system.debug('SiteVisitDatetime'+SiteVisitDatetime);
+        
+         String phone=st.lead__r.phone;
+          system.debug('phone'+phone);
+        
+      String Name=st.lead__r.Name;
+          system.debug('Name'+Name);*/
+            
+                // Vijayraja_WhatsappCallout_Sitevisit.sendTemplate(phone,Name,SiteVisitNumber,SiteVisitDatetime);
+    svfirstRun=false;
+        }
+    public static void getSitevisitOnInsert(set<id> siteid){
+      list<site_visit__c> stlist = [Select id,Name,Status__c,Site_Visit_Date_Time__c,Completed__c,lead__r.LastName,lead__r.Phone,lead__r.also_interested_in_projects__c from Site_Visit__c where id=: siteid];
+         set<Site_Visit__c> Sitevisitset= new set<Site_Visit__c>(); 
+          set<Site_Visit__c> SitevisitsetEx= new set<Site_Visit__c>();
+        string abc;
+        String templateid;
+         for(Site_Visit__c st:stlist){
+             if(st.lead__r.also_interested_in_projects__c == 'Exurb')
+       abc= Lead__c.getInstance('SiteVisit_Exurb').templateid__c;
+             else if(st.lead__r.also_interested_in_projects__c == 'VRX 360')
+                 	 abc= Lead__c.getInstance('SiteVisit_VRX360').templateid__c;
+           Set<string>Phone = new Set<String>();
+           Phone.add(st.lead__r.Phone);
+             templateid =abc+'~'+st.lead__r.LastName+'~'+st.lead__r.also_interested_in_projects__c+'~'+st.Site_Visit_Date_Time__c; 
+           Vijayaraja_WhatsappCallout_Welcome.sendTemplate(Phone,templateid); 
+   }
+        svfirstRun=false;
+   }
+      }
