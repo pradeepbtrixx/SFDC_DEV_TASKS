@@ -1,0 +1,510 @@
+<apex:page showHeader="false" standardStylesheets="false" docType="html-5.0">
+<html>
+<head>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+    <script src="https://vijayrajacrm--c.visualforce.com/resource/1638187660000/intlTelInput_min_js">     
+    </script> 
+<style>
+body{
+    background: url(https://vijayrajacrm--c.visualforce.com/resource/1637321614000/Channel_Partner_BG_parallel) no-repeat center fixed;
+    background-color: #ece8e8;
+    background-size: cover;
+    opacity: 0.899;   
+}
+.form-horizontal .form-group {
+    width: 100%;
+    }
+.container{
+     position: absolute;
+    font-family: Karla, sans-serif;
+    font-size: 12px;
+   
+}
+.title{
+position: absolute;
+}
+.col-sm-5.title{
+top: 6px;
+}
+.iti {
+       width: 100%;
+}
+    
+@media only screen and (min-width: 320px)and (max-width: 374px){    
+body{
+    background: url(https://vijayrajacrm--c.visualforce.com/resource/1637321677000/Channel_Partner_BG_parallel_mob) no-repeat fixed;
+    background-color: #ece8e8;
+    background-size: cover;
+    opacity: 0.899;
+   
+}
+.container{
+     position: absolute;
+    font-family: Karla, sans-serif;
+    font-size: 12px;
+   background-color: white;
+    width: 100%;
+    top: 57%;
+}
+img.control-label.col-sm-1.img-rounded{
+width: 28%;
+}
+.col-sm-5.title{
+top: 0px;
+padding-right: 17px;
+}
+
+.col-sm-5.title h2{
+font-size: 22px;
+}
+<!--img.control-label.col-sm-1.img-rounded
+{
+margin-left: 35%;
+}-->
+
+.col-sm-offset-3.col-sm-5 {
+    margin-left: 32%;
+}
+}
+@media only screen and (min-width: 375px)and (max-width: 424px){    
+body{
+    background: url(https://vijayrajacrm--c.visualforce.com/resource/1637321677000/Channel_Partner_BG_parallel_mob) no-repeat  fixed;
+    background-color: #ece8e8;
+    background-size: cover;
+    opacity: 0.899;
+   
+}
+.container{
+     position: absolute;
+    font-family: Karla, sans-serif;
+    font-size: 12px;
+   background-color: white;
+    top: 57%;
+    width: 100%;
+}
+img.control-label.col-sm-1.img-rounded{
+width: 28%;
+}
+.col-sm-5.title{
+top: 0px;
+padding-right: 18px;
+}
+
+.col-sm-5.title h2{
+font-size: 26px;
+}
+<!--img.control-label.col-sm-1.img-rounded
+{
+margin-left: 35%;
+}-->
+
+.col-sm-offset-3.col-sm-5 {
+    margin-left: 32%;
+}
+}
+@media only screen and (min-width: 425px)and (max-width: 767px){    
+body{
+    background: url(https://vijayrajacrm--c.visualforce.com/resource/1637321677000/Channel_Partner_BG_parallel_mob) no-repeat  fixed;
+    background-color: #ece8e8;
+    background-size: cover;
+    opacity: 0.899;
+   
+}
+.container{
+     position: absolute;
+    font-family: Karla, sans-serif;
+    font-size: 12px;
+   background-color: white;
+    top: 57%;
+padding-right: 27px !important;
+    width: 100%;
+}
+
+img.control-label.col-sm-1.img-rounded{
+width: 28%;
+}
+.col-sm-5.title{
+top: 0px ;
+padding-right: 18px;
+}
+
+.col-sm-5.title h2{
+font-size: 29px;
+}
+<!--img.control-label.col-sm-1.img-rounded
+{
+margin-left: 35%;
+}-->
+
+.col-sm-offset-3.col-sm-5 {
+    margin-left: 32%;
+}
+
+
+}
+@media only screen and (min-width: 768px)and (max-width: 1023px){
+.col-sm-offset-3 .col-sm-3 {
+    margin-left: 16% !important;
+    }
+.form-horizontal .form-group{
+    font-size: 11px;
+    }
+    .col-sm-5.title h2{
+font-size: 20px;
+}
+    .col-sm-4 {
+    width: 32.333333% !important;
+}
+    .col-sm-2 .pos{
+    font-size: 16px !important;
+    top: -1.5em !important;
+    left: 11%;
+    }
+    img.control-label.col-sm-1.img-rounded
+{
+padding-top: 19px;
+}
+}
+   
+</style>
+<script>
+            function submitform() {
+                var name = document.forms["RegForm"]["last_name"]; 
+                if (name.value == "") {
+                    document.getElementById('message').style.display = "block";
+                    document.getElementById('message').innerHTML="Please enter your name.";
+                    name.focus();
+                    return false;
+                }
+                else{
+    document.getElementById('message').style.display = "none";
+
+    }
+                var phone = document.forms["RegForm"]["phone"];
+                if (phone.value == "") {
+                    document.getElementById('message1').style.display = "block";
+                    document.getElementById('message1').innerHTML="Please enter your Phone Number.";
+                    phone.focus();
+                    return false;
+                }
+                else{
+    document.getElementById('message1').style.display = "none";
+
+    }
+                 /* Internation mobile number */   
+                //  process(event);
+                // Phone num conversion
+                const phonenumberInput = phoneInput.getNumber();
+                var phonecleannum = phonenumberInput.replace(/[^0-9]/g, '');
+                phone.value = phonecleannum; 
+                // Alt1 num conversion
+                const altonenumberInput = alt1phoneInput.getNumber();
+                var altonecleannum = altonenumberInput.replace(/[^0-9]/g, '');
+                CF00N0o00000OSmDp.value = altonecleannum; 
+                // Alt2 num conversion
+                const alttwonumberInput = alt2phoneInput.getNumber();
+                var alttwocleannum = alttwonumberInput.replace(/[^0-9]/g, '');
+                CF00N0o00000OSmDq.value = alttwocleannum; 
+                
+                /* For NRI Number - Yuvaraj */
+                var mob = /^!*(\d!*){10,}$/;
+                /*var mob = /^[1-9]{1}[0-9]{9}$/;*/
+                if (mob.test(phone.value) == false) {
+                    document.getElementById('message1').style.display = "block";
+                    document.getElementById('message1').innerHTML="Please enter your valid 10 digit Mobile Number.";
+                    phone.focus();
+                    return false;
+                }
+                 else{
+    document.getElementById('message1').style.display = "none";
+
+    }
+                        
+  var cpname = document.forms["RegForm"]["00N0o00000NVnu3"];
+                if (cpname.value == "") {
+                    document.getElementById('message2').style.display = "block";
+                    document.getElementById('message2').innerHTML="Please enter your Channel Partner Name.";
+                    cpname.focus();
+                    return false;
+                }
+                else{
+    document.getElementById('message2').style.display = "none";
+
+    }
+                var cpemail = document.forms["RegForm"]["00N0o00000OSmDr"];
+                var cpfemail = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+                /*if (cpfemail.test(cpemail.value) == false) {
+                alert("Please enter a valid e-mail address.");
+                    cpemail.focus();
+                    return false;
+                }*/
+                if (cpfemail.test(cpemail.value) == false) {
+                    document.getElementById('message7').style.display = "block";
+                    document.getElementById('message7').innerHTML="Please enter a valid e-mail address.";
+                    cpemail.focus();
+                    return false;
+                }
+                 else{
+    document.getElementById('message7').style.display = "none";
+    }
+        var project =  document.forms["RegForm"]["00N0o00000Nv9Zg"];
+               if (project.selectedIndex < 1) {
+                   document.getElementById('message3').style.display = "block";
+                    document.getElementById('message3').innerHTML="Please enter your Project.";
+                   
+                    project.focus();
+                    return false;
+                }
+                else{
+    document.getElementById('message3').style.display = "none";
+
+    }
+                
+                
+                return true;
+            }
+        </script>
+
+
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: Please add the following <META> element to your page <HEAD>.      -->
+<!--  If necessary, please modify the charset parameter to specify the        -->
+<!--  character set of your HTML page.                                        -->
+<!--  ----------------------------------------------------------------------  -->
+
+<META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=UTF-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" />
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+</head>
+<body>
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: Please add the following <FORM> element to your page.             -->
+<!--  ----------------------------------------00D0o000001RMSO------------------------------  -->
+    
+    
+<div class="container" align="center">
+<form action="https://webto.salesforce.com/servlet/servlet.WebToLead?encoding=UTF-8" name="RegForm"  class="form-horizontal" onsubmit="return submitform()" method="POST">
+                                       
+<input type="hidden" name="oid" value="00D0l0000003Nu6" />
+<input type="hidden" name="retURL" value="https://vijayrajacrmsite.secure.force.com/channelpartnerthankyou" />
+<!--<input type="hidden" name="RecordTypeId" value="0120o000001k0HbAAI" />-->
+
+<!--  ----------------------------------------------------------------------  -->
+<!--  NOTE: These fields are optional debugging elements. Please uncomment    -->
+<!--  these lines if you wish to test in debug mode.                          -->
+<!--  <input type="hidden" name="debug" value=1>                              -->
+<!--  <input type="hidden" name="debugEmail"                                  -->
+<!--  value="dinesh.g@rudhrainfosolutions.com">                               -->
+<!--  ----------------------------------------------------------------------  -->
+<div>
+        <div class="form-group">
+            <img src="https://vijayrajacrm--c.visualforce.com/resource/1591878555000/Logo" class="control-label col-sm-1 img-rounded"/>
+<div class="col-sm-5 title">
+<h2 style=""><b>Channel Partner Lead Form</b></h2>
+</div>
+</div>
+    <br/><br/>
+    <div class="form-group">
+
+    <label for="last_name" class="control-label col-sm-2"><b>Customer Name</b><sup style="color:red;font-size: 17px;">*</sup></label>
+    <div class="col-sm-3">
+<input  class="form-control" id="last_name" maxlength="80" name="last_name" size="20"  type="text" placeholder="John" />
+    <span   style="color:red;display:none;" id="message"></span>
+</div>
+    </div>
+<div class="form-group">
+<label for="phone" class="control-label col-sm-2"><b>Number</b><sup style="color:red;font-size: 17px;">*</sup></label>
+
+<div class="col-sm-3">
+<input  class="form-control" id="phone" maxlength="15" name="phone" size="20" type="tel" />
+   
+    <span   style="color:red;display:none;" id="message1"></span>
+</div>
+</div>
+
+
+<div class="form-group">
+<label for="alternatenumber1" class="control-label col-sm-2"><b>Alternate Number 1</b></label>
+<div class="col-sm-3">
+<input  class="form-control" id="CF00N0o00000OSmDp" maxlength="15" name="00N0o00000OSmDp" size="20" type="tel"  />
+   
+    <span   style="color:red;display:none;" id="message4"></span>
+</div>
+</div>
+
+
+<div class="form-group">
+
+<label for="alternatenumber1" class="control-label col-sm-2"><b>Alternate Number 2</b></label>
+
+<div class="col-sm-3">
+<!--
+    <input  class="form-control" id="00N0o00000OSmDq" maxlength="10" name="00N0o00000OSmDq" size="20" type="tel" placeholder="9876543210"/>
+-->
+<input  class="form-control" id="CF00N0o00000OSmDq" maxlength="15" name="00N0o00000OSmDq" size="20" type="tel" />   
+    <span   style="color:red;display:none;" id="message5"></span>
+</div>
+</div>
+
+
+<div class="form-group">
+<label for="email" class="control-label col-sm-2"><b>Email</b></label>
+<div class="col-sm-3">
+<input  class="form-control" id="email" maxlength="80" name="email" size="20" type="text" placeholder="abc@gmail.com" />
+    
+    <span   style="color:red;display:none;" id="message6"></span>
+</div>
+</div>
+
+
+<div class="form-group">
+<label for="channelpartnername" class="control-label col-sm-2"><b>Channel Partner Name</b><sup class="pos" style="color:red;font-size: 17px;">*</sup></label>
+<div class="col-sm-3">
+<input  class="form-control" id="00N0o00000NVnu3" maxlength="80" name="00N0o00000NVnu3" size="20" type="text" placeholder="cpname"/>
+    
+    <span   style="color:red;display:none;" id="message2"></span>
+</div>
+</div>
+
+
+<div class="form-group">
+<label for="channelpartneremail" class="control-label col-sm-2"><b>Channel Partner Email</b><sup class="pos" style="color:red;font-size: 17px;">*</sup></label>
+
+<div class="col-sm-3">
+<input class="form-control" id="00N0o00000OSmDr" maxlength="80" name="00N0o00000OSmDr" size="20" type="text" placeholder="abc@gmail.com"/>
+    <br/>
+    <span   style="color:red;display:none;" id="message7"></span>
+</div>
+</div>    
+
+   
+<div class="form-group" style="display:none;">
+
+    <label for="leadlocation" class="control-label col-sm-2">Lead Location</label>
+    
+<div class="col-sm-3">
+    <select class="form-control" id="00N0o00000OSfL8" name="00N0o00000OSfL8" title="Lead Location">
+            <option value="Chennai">Chennai</option>
+</select>
+    </div>
+</div>
+
+ <div class="form-group" style="display:none;">
+   
+<label for="lead_source" class="control-label col-sm-2">Lead Source</label>
+    
+<div class="col-sm-3">
+ <select class="form-control" id="lead_source" name="lead_source">
+<option value="Partner">Channel Partner</option>
+</select>
+    </div>
+</div>
+
+
+    <div class="form-group" style="display:none;">
+
+    <label for="recordType" class="control-label col-sm-2">Lead Record Type</label>
+   
+<div class="col-sm-3">
+    <select  class="form-control" id="recordType" name="recordType">
+        
+        <option value="0120o000001k0Hb" selected="selected">Channel Partner Lead</option>
+
+</select>
+    </div>
+</div>
+
+<div class="form-group">
+<label for="project" style="" class="control-label col-sm-2"><b>Project</b><sup style="color:red;font-size: 17px;">*</sup></label>
+
+<div class="col-sm-3">
+<select  class="form-control" id="00N0o00000Nv9Zg"  name="00N0o00000Nv9Zg" title="Interested Project" >
+<option value="">--None--</option>
+<option value="VRX 360">VRX 360</option>
+<option value="Exurb">Exurb</option>
+<option value="Classic">Classic</option>
+<option value="Sanctuary">Sanctuary</option>
+</select>
+    <br/>
+    <span   style="color:red;display:none;" id="message3"></span>
+</div>
+</div>  
+
+<div class="form-group">        
+      <div class="col-sm-offset-2 col-sm-3">
+        <button type="submit" name="submit" class="btn btn-default" style="color: white; background-color: #0fa892;padding: 10px 24px !important;border-radius: 12px !important;">Submit</button>
+      </div>
+    </div>
+    
+<br/>
+</div>
+</form>
+</div>
+</body>
+    <script>
+    // Primary Phone Number 
+    const phonenumberInputField = document.querySelector("#phone");
+    const phoneInput = window.intlTelInput(phonenumberInputField, {
+      utilsScript:
+        "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    });
+</script>
+<script>
+    // Alternate Number #1
+    const alt1InputField = document.querySelector("#CF00N0o00000OSmDp");
+    const alt1phoneInput = window.intlTelInput(alt1InputField, {
+     utilsScript:
+        "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+     });
+</script>
+<script>
+    // Alternate Number #2   
+        const alt2InputField = document.querySelector("#CF00N0o00000OSmDq");
+        const alt2phoneInput = window.intlTelInput(alt2InputField, {
+      utilsScript:
+        "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+     });
+</script>    
+    <script>
+    function process(event) {
+     event.preventDefault();
+    
+     const phonenumberInput = phoneInput.getNumber();
+        // const alt1numberInput = alt1phoneInput.getNumber();
+        //const alt2numberInput = alt2phoneInput.getNumber();
+
+       
+        var phonecleannum = phonenumberInput.replace(/[^0-9]/g, '');
+        //var alt1cleannum = alt1numberInput.replace(/[^0-9]/g, '');
+        //var alt2cleannum = alt2numberInput.replace(/[^0-9]/g, '');
+
+        
+       /*  Remove + symbol */
+                
+                phone.value = phonecleannum; 
+        //      alt1_num.value=alt1cleannum;
+        //      alt2_num.value=alt2cleannum;
+        
+        //      var pno = parseInt(phonecleannum);
+        //      var a1no = parseInt(alt1cleannum,15);
+        //      var a2no = parseInt(alt2cleannum,15);
+                        
+        //      phone.value = pno; 
+        //      alt1_num.value=a1no;
+        //      alt2_num.value=a2no;
+                
+        /*  
+        
+     info.style.display = "";
+     info.innerHTML = `Phone number in E.164 format: <strong>${phonenumberInput}</strong>`; */
+    }
+    </script>
+    
+</html>
+
+</apex:page>
+                                        
