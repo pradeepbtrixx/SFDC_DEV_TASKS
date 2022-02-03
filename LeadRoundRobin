@@ -1,0 +1,349 @@
+public static void leadRoundRobinAssignment(List<lead> newList){
+    
+        Set<String> userEmails = new Set<String>();
+        Set<string> projectSet=new Set<String>();
+        Map<String,User> mapOfuserEmailsToUser = new Map<String,User>();
+        List<lead> leadToUpdate = new List<Lead>();
+               List<lead> LeadVtProj= new List<Lead>();
+        List<lead> LeadVtoutProj= new List<Lead>();
+        List<lead> projList= new List<Lead>();// CP lead rr
+               set<string>locationset= new Set<String>();
+	 /* cp lead rr */
+	 list<lead> cpleads = new list<lead>(); // cp lead rr -commented(Removed) by rubesh
+        for(lead ld:newList){
+            // cp lead rr 
+            if(ld.channel_Partner_Name__c != Null && ld.Channel_Partner_Email__c != Null){
+             	cpleads.add(ld);   
+            }  // cp lead rr
+             //Added to Assign leads based on Location
+            if(ld.Lead_Location__c!=null && ld.channel_Partner_Name__c == Null && ld.Channel_Partner_Email__c == Null ){ //&& ld.channel_Partner_Name__c == Null && ld.Channel_Partner_Email__c == Null
+                locationset.add(ld.Lead_Location__c);
+                }
+            system.debug('locationset'+locationset);
+             if(ld.also_interested_in_projects__c!=null && ld.channel_Partner_Name__c == Null && ld.Channel_Partner_Email__c == Null){ //&& ld.channel_Partner_Name__c == Null && ld.Channel_Partner_Email__c == Null
+                //projectSet.add(ld.also_interested_in_projects__c);
+                //LeadVtProj.add(ld);
+                   if((ld.also_interested_in_projects__c=='Exurb'||ld.also_interested_in_projects__c=='VRX 360')&&(ld.Phone.startswith('0'))){
+                  LeadVtoutProj.add(ld);
+                   }
+                else
+                {
+                   projectSet.add(ld.also_interested_in_projects__c);
+                LeadVtProj.add(ld);  
+                }
+                //projList.add(ld);
+           }else if(ld.channel_Partner_Name__c == Null && ld.Channel_Partner_Email__c == Null) //if(ld.channel_Partner_Name__c == Null && ld.Channel_Partner_Email__c == Null)
+                LeadVtoutProj.add(ld);
+       } 
+        // cp lead assignment for rr code start YYY
+        
+        if(cpleads.size() > 0){             
+        Map<Integer,user> rrmapuser = new Map<Integer,User>();
+            Integer rrcount = 1;
+            Integer rrnumber;
+            user correspondinguser=new user();
+            
+            /*    The below mentioned code was commented /greyed out because 
+             * our client dont want the CP leads to be assigned to Default lead Queue 
+             * instead they want the CP leads to be assigned to the CP team users. */
+            
+           /* Integer hr = Integer.valueOf(Label.WorkingEndTime.split(':')[0]);
+        	Integer minute = Integer.valueOf(Label.WorkingEndTime.split(':')[1]);
+        	Time closetime = Time.newInstance(hr,minute, 0, 0);
+        	Datetime dt = System.now();
+        	String nowTime = dt.format('HH:mm:ss');
+        	Time actualTime = Time.newInstance(Integer.valueOf(nowTime.split(':')[0]),Integer.valueOf(nowTime.split(':')[1]),0,0);
+        	BOolean afterworkingHOurs = false;
+        	String dayOfWeek = System.now().format('EEEE');
+            system.debug('day'+dayOfWeek);
+        	if(dayOfWeek == System.Label.Weekoff){
+            afterworkingHOurs = true;
+        }
+        else{
+            if(actualTime < closeTime ){
+                afterworkingHOurs = false;
+            }
+            else{
+                afterworkingHOurs = true;
+            }
+            if(Test.isRunningTest())
+                afterworkingHOurs = false;
+       		}        
+        	Group leadQueue = [Select id from Group where Type='Queue' and developerName = 'Default_Lead_Queue'];
+            */
+            Integer cptotalleadcount = [select count() from lead where channel_Partner_Name__c != Null and Channel_Partner_Email__c != Null];
+            for(User u : [select id from user where profile.name = 'CP PreSales - Project Launch' and isactive = true]){
+             	rrmapuser.put(rrcount,u); 
+                rrcount++;
+            }
+			  if(rrmapuser.size() > 0){
+            rrnumber = Math.mod(cptotalleadcount, rrmapuser.size()) + 1;
+            correspondinguser = rrmapuser.get(rrnumber);
+            for(Lead cplead :cpleads){
+            	if(correspondinguser != Null){
+                    //if(!afterworkingHOurs){
+                        system.debug('&&&&&&&&&&&&&&&&&&'+correspondinguser);
+                    	leadToUpdate.add(new Lead(id=cplead.Id,OwnerId = correspondinguser.Id,Lead_Assigned_DAtetime__c = System.now()));
+                        cptotalleadcount --; // This line of code added by Pradeep Kumar on 06-01-2021. 
+                    }
+                  /*  else{
+                    	leadToUpdate.add(new Lead(id=cplead.Id,OwnerId = leadQueue.Id));  
+                    }*/
+            	}
+            }
+        
+        }
+        
+        // cp lead rr end YYY
+
+		System.debug('projectSet**'+projectSet);
+         List<Lead_Round_Robin_Assignment__mdt> metadataValues= new List<Lead_Round_Robin_Assignment__mdt>();
+       if(projectset.contains('Classic')){
+               /*  List<Lead_Round_Robin_Assignment__mdt>*/ metadataValues = [Select id, NRI_LeadOwner__c,Absent_Manager_Email_Id__c,Round_Robin_Id__c,Project__c,Location__c,User_Email_Id__c from
+                                                                 Lead_Round_Robin_Assignment__mdt where Project__c IN :projectSet /* AND Location__c IN :locationset*/ AND Active__c=true ];
+   
+       }
+        else{
+       /* List<Lead_Round_Robin_Assignment__mdt>*/ metadataValues = [Select id, NRI_LeadOwner__c,Absent_Manager_Email_Id__c,Round_Robin_Id__c,Project__c,Location__c,User_Email_Id__c from
+                                                                 Lead_Round_Robin_Assignment__mdt where Project__c IN :projectSet AND Location__c IN :locationset AND Active__c=true ];
+        }
+            System.debug('metadataValues&&'+metadataValues);
+        Map<String,Boolean> mapoOfEmailToHasLeaves = new Map<String,Boolean>();
+        for(Lead_Round_Robin_Assignment__mdt it : metadataValues){
+            userEmails.add(it.Absent_Manager_Email_Id__c);
+            userEmails.add(it.User_Email_Id__c);
+        }
+        
+        for(User it : [Select id,username,email,ManagerId,Manager.Username,(Select id,Start_Date__c,End_Date__c from Leaves__r where Start_Date__c >= :DAte.today() and End_Date__C <= :Date.today()) 
+                       from User where username in : userEmails and isactive = true]){
+                           if(it.getSObjects('Leaves__r') == null || it.getSObjects('Leaves__r').isEmpty()){
+                               mapOfuserEmailsToUser.put(it.username,it);
+                           }
+                           /*else{
+
+}*/
+                       }
+        system.debug('mapOfuserEmailsToUser'+mapOfuserEmailsToUser);
+        
+        Map<String,Map<Integer,Lead_Round_Robin_Assignment__mdt>> mapOfProjMetadt = new   Map<String,Map<Integer,Lead_Round_Robin_Assignment__mdt>>();
+        Map<String,Map<Integer,Lead_Round_Robin_Assignment__mdt>> mapOfNRIProjMetadt = new  Map<String,Map<Integer,Lead_Round_Robin_Assignment__mdt>>();
+        
+        Boolean firstRec=true;
+        //Leads With Interested Projects Value
+        for(String proj:projectSet){
+            Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOfRRIdToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+            Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOfNRIRRIdToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+            Integer counter = 1;
+            Integer NRICounter = 1;
+           
+            for(Lead_Round_Robin_Assignment__mdt it : metadataValues){
+                 if((mapOfuserEmailsToUser.containsKey(it.User_Email_Id__c)) && (it.Project__c==proj )&& ((!it.NRI_LeadOwner__c)||(it.Project__c=='classic'))){
+                    mapOfRRIdToUser.put(counter++,it);
+                    if(it.NRI_LeadOwner__c && it.Project__c==proj){
+                        mapOfNRIRRIdToUser.put(NRICounter++,it);
+                    }
+                    system.debug('mapOfRRIdToUser@@'+mapOfRRIdToUser);
+                    system.debug('mapOfNRIRRIdToUser@@'+mapOfNRIRRIdToUser);
+                }
+            }
+            mapOfProjMetadt.put(proj,mapOfRRIdToUser);
+            mapOfNRIProjMetadt.put(proj,mapOfNRIRRIdToUser);
+        }
+        Map<Integer,Lead_Round_Robin_Assignment__mdt> mapRRIdToUsergrp = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+        Map<Integer,Lead_Round_Robin_Assignment__mdt> mapNRIRRIdToUsergrp = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+        Integer counter = 1;
+        Integer NRICounter = 1;
+        List<Lead_Round_Robin_Assignment__mdt> metalist=[Select id, NRI_LeadOwner__c,Absent_Manager_Email_Id__c,Round_Robin_Id__c,Project__c,Location__c,User_Email_Id__c from Lead_Round_Robin_Assignment__mdt Where Active__c=true /*AND Location__c IN :locationset*/];
+        Set<String> userEmail= new Set<String>();
+        for(Lead_Round_Robin_Assignment__mdt lrr :metalist)
+        {
+            userEmail.add(lrr.User_Email_Id__c);
+            userEmail.add(lrr.Absent_Manager_Email_Id__c);
+        }
+			 system.debug('*************'+UserEmail);
+        Map<String,User> mapOfEmailsToUser = new Map<String,User>();
+        for(User u:[Select id,username,(Select id,Start_Date__c,End_Date__c from Leaves__r where Start_Date__c >= :DAte.today() and End_Date__C <= :Date.today()) 
+                    from User where username in : userEmail and isactive = true]){
+                        if(u.getSObjects('Leaves__r') == null || u.getSObjects('Leaves__r').isEmpty()){
+                            mapOfEmailsToUser.put(u.username,u);
+                        }      
+                    }
+         system.debug('&&&&&&&&&&&&&&&&'+mapOfEmailsToUser);
+        for(Lead_Round_Robin_Assignment__mdt it :metalist)
+        {
+               if((mapOfEmailsToUser.containsKey(it.User_Email_Id__c) ) &&((!it.NRI_LeadOwner__c)||(it.Project__c!='Classic'))){
+                   mapRRIdToUsergrp.put(counter++,it);}
+                if(it.NRI_LeadOwner__c && (it.Project__c!='Classic') ){
+                    mapNRIRRIdToUsergrp.put(NRICounter++,it);
+                }
+            
+            
+        }
+        system.debug('mapOfRRIdToUser**'+mapRRIdToUsergrp);
+        system.debug('mapOfNRIRRIdToUser**'+mapNRIRRIdToUsergrp);
+        Integer hr = Integer.valueOf(Label.WorkingEndTime.split(':')[0]);
+        Integer minute = Integer.valueOf(Label.WorkingEndTime.split(':')[1]);
+        Time closetime = Time.newInstance(hr,minute, 0, 0);
+        Datetime dt = System.now();
+        String nowTime = dt.format('HH:mm:ss');
+        Time actualTime = Time.newInstance(Integer.valueOf(nowTime.split(':')[0]),Integer.valueOf(nowTime.split(':')[1]),0,0);
+        BOolean afterworkingHOurs = false;
+        String dayOfWeek = System.now().format('EEEE');
+        system.debug('day'+dayOfWeek);
+        if(dayOfWeek == System.Label.Weekoff){
+            afterworkingHOurs = true;
+        }
+        else{
+            if(actualTime < closeTime ){
+                afterworkingHOurs = false;
+            }
+            else{
+                afterworkingHOurs = true;
+            }
+            if(Test.isRunningTest())
+                afterworkingHOurs = false;
+        }
+        
+        Group leadQueue = [Select id from Group where Type='Queue' and developerName = 'Default_Lead_Queue'];
+        //User nriOwner = mapOfuserEmailsToUser.get(System.Label.NRICallsLeadOwner);
+      for(Lead it : LeadVtProj){
+            if(mapOfProjMetadt.containsKey(it.also_interested_in_projects__c)){
+                Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOfRRIdToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>(mapOfProjMetadt.get(it.also_interested_in_projects__c));
+                  Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOflocToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+                  Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOflocNRIToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+                if(mapOfNRIProjMetadt.containsKey(it.also_interested_in_projects__c)){
+                    Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOfNRIRRIdToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>(mapOfNRIProjMetadt.get(it.also_interested_in_projects__c));
+                    Integer Count=1;
+                    Integer NRIcount=1;
+                    for(Lead_Round_Robin_Assignment__mdt mdt:mapOfRRIdToUser.values() ){
+                       if(((mdt.Location__c==it.Lead_Location__c)&& mdt.Project__c!='Classic') || (mdt.Project__c=='Classic' && it.also_interested_in_projects__c=='Classic'&& mdt.NRI_LeadOwner__c==true ))
+                        {
+                            mapOflocToUser.put(Count,mdt);
+                            Count++;
+                        }
+                    }
+                    for(Lead_Round_Robin_Assignment__mdt mdt:mapOfNRIRRIdToUser.values() ){
+                        if((mdt.Location__c==it.Lead_Location__c)||( mdt.Project__c=='Classic' && it.also_interested_in_projects__c=='Classic'&& mdt.NRI_LeadOwner__c==true ) )
+                        {
+                            mapOflocNRIToUser.put(NRIcount,mdt);
+                            NRIcount++;
+                        }
+                    }
+                    Integer leadNumber = Integer.valueOf(it.Lead_Number__c.split('/')[1]);
+                    system.debug('** leadNumber'+leadNumber);
+                    Integer roundRobinNumber ;
+                    Lead_Round_Robin_Assignment__mdt correspondingData ;
+                    String phoneNumber = it.Phone;
+                     system.debug('** phoneNumber'+ phoneNumber);
+                    //Integer totalAvailableUsers = mapOfRRIdToUser.size();
+                    Integer totalAvailableUsers = mapOflocToUser.size();
+                    system.debug('** totalAvailableUsers'+ totalAvailableUsers);
+                   // Integer totalAvailableNRIUsers = mapOfNRIRRIdToUser.size();
+                    Integer totalAvailableNRIUsers = mapOflocNRIToUser.size();
+                    system.debug('**totalAvailableNRIUsers'+totalAvailableNRIUsers);
+                    if(phoneNumber != null && phoneNumber.startsWith('0') && totalAvailableNRIUsers != 0){
+          
+                        roundRobinNumber = Math.mod(leadNumber, totalAvailableNRIUsers) + 1;
+                        
+                       system.debug('** roundRobinNumber'+ roundRobinNumber );
+                        //correspondingData = mapOfNRIRRIdToUser.get(roundRobinNumber);
+                         correspondingData = mapOflocNRIToUser.get(roundRobinNumber);
+                           system.debug('** roundRobinNumber'+ roundRobinNumber );
+                    
+                    }
+                    else if(totalAvailableUsers !=0){
+                       
+                        roundRobinNumber = Math.mod(leadNumber, totalAvailableUsers) + 1;
+                        
+                           system.debug('** roundRobinNumber'+ roundRobinNumber );
+                       // correspondingData = mapOfRRIdToUser.get(roundRobinNumber);
+                           correspondingData = mapOflocToUser.get(roundRobinNumber);
+                           system.debug('** roundRobinNumber'+ roundRobinNumber );
+                    
+                    }
+                    if(correspondingData != null)
+                    {
+                        User correspondingUser = mapOfuserEmailsToUser.get(correspondingData.User_Email_Id__c);
+                           system.debug('** correspondingUser'+  correspondingUser );
+                        if(correspondingUser != null){
+                            if(!afterworkingHOurs)
+                                leadToUpdate.add(new Lead(id=it.Id,Lead_Assigned_DAtetime__c = System.now(),OwnerId = correspondingUser.Id));
+                            else
+                                leadToUpdate.add(new Lead(id=it.Id,OwnerId = leadQueue.Id));
+                        }
+                    }
+                }
+            }       
+        }
+        for(lead l:LeadVtoutProj){
+            Integer leadNumber = Integer.valueOf(l.Lead_Number__c.split('/')[1]);
+              system.debug('** leadNumber'+leadNumber);
+              Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOflocToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+                  Map<Integer,Lead_Round_Robin_Assignment__mdt> mapOflocNRIToUser = new Map<Integer,Lead_Round_Robin_Assignment__mdt>();
+            Integer roundRobinNumber ;
+            Lead_Round_Robin_Assignment__mdt correspondingData ;
+            String phoneNumber = l.Phone;
+              system.debug('** phoneNumber'+ phoneNumber);
+              Integer Count=1;
+                    Integer NRIcount=1;
+                    for(Lead_Round_Robin_Assignment__mdt mdt:mapRRIdToUsergrp.values() ){
+                        if(mdt.Location__c==l.Lead_Location__c)
+                        {
+                            mapOflocToUser.put(Count,mdt);
+                            Count++;
+                        }
+                    }
+                    for(Lead_Round_Robin_Assignment__mdt mdt:mapNRIRRIdToUsergrp.values() ){
+                        if(/*mdt.Location__c==l.Lead_Location__c &&*/ mdt.Project__c!='Classic')
+                        {
+                            mapOflocNRIToUser.put(NRIcount,mdt);
+                            NRIcount++;
+                       }
+                    }
+            
+            Integer totalAvailableUsers = mapOflocToUser.size();
+            system.debug('** totalAvailableUsers'+ totalAvailableUsers);
+           // Integer totalAvailableNRIUsers = mapNRIRRIdToUsergrp.size();
+             Integer totalAvailableNRIUsers =mapOflocNRIToUser.size();
+               system.debug('**totalAvailableNRIUsers'+totalAvailableNRIUsers);
+            if(phoneNumber != null && phoneNumber.startsWith('0') && totalAvailableNRIUsers != 0){
+           
+                roundRobinNumber = Math.mod(leadNumber, totalAvailableNRIUsers) + 1;
+                  
+                  system.debug('** roundRobinNumber'+ roundRobinNumber );
+                //correspondingData = mapNRIRRIdToUsergrp.get(roundRobinNumber);
+                                correspondingData =mapOflocNRIToUser.get(roundRobinNumber);
+                  system.debug('** roundRobinNumber'+ roundRobinNumber );
+            
+            }
+            else if(totalAvailableUsers !=0){
+                 
+                roundRobinNumber = Math.mod(leadNumber, totalAvailableUsers) + 1;
+                  system.debug('** roundRobinNumber'+ roundRobinNumber );
+                  
+                correspondingData = mapOflocToUser.get(roundRobinNumber);
+                  system.debug('** roundRobinNumber'+ roundRobinNumber );
+            }
+            if(correspondingData != null)
+            {
+                User correspondingUser = mapOfEmailsToUser.get(correspondingData.User_Email_Id__c);
+                if(correspondingUser != null){
+                    if(!afterworkingHOurs)
+                        leadToUpdate.add(new Lead(id=l.Id,Lead_Assigned_DAtetime__c = System.now(),OwnerId = correspondingUser.Id));
+                    else
+                        leadToUpdate.add(new Lead(id=l.Id,OwnerId = leadQueue.Id));
+                }
+            }
+        }
+        
+        try{
+            system.debug('leadToUpdate'+leadToUpdate);
+            if(!leadToUpdate.isEmpty())
+                Database.update(leadToUpdate,false);
+            
+        }
+        catch(exception e){
+            system.debug('EXCEPTION'+e.getmessage());
+        }
+        system.debug('leadToUpdate***'+leadToUpdate);
+    }
